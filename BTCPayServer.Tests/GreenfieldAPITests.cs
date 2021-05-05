@@ -1066,8 +1066,8 @@ namespace BTCPayServer.Tests
 
                 //list Filtered
                  var invoicesFiltered = await viewOnly.GetInvoices(user.StoreId,
-                     orderId: null, status: null, DateTimeOffset.Now.AddHours(-1),
-                     DateTimeOffset.Now.AddHours(1));
+                     orderId: null, status: null, startDate: DateTimeOffset.Now.AddHours(-1),
+                     endDate: DateTimeOffset.Now.AddHours(1));
 
                  Assert.NotNull(invoicesFiltered);
                  Assert.Single(invoicesFiltered);
@@ -1075,16 +1075,16 @@ namespace BTCPayServer.Tests
 
                  //list Yesterday
                  var invoicesYesterday = await viewOnly.GetInvoices(user.StoreId,
-                     orderId: null, status: null, DateTimeOffset.Now.AddDays(-2),
-                     DateTimeOffset.Now.AddDays(-1));
+                     orderId: null, status: null, startDate: DateTimeOffset.Now.AddDays(-2),
+                     endDate: DateTimeOffset.Now.AddDays(-1));
                  Assert.NotNull(invoicesYesterday);
                  Assert.Empty(invoicesYesterday);
 
                 // Error, startDate and endDate inverted
                 await AssertValidationError(new[] { "startDate", "endDate" },
                     () => viewOnly.GetInvoices(user.StoreId,
-                    orderId: null, status: null, DateTimeOffset.Now.AddDays(-1),
-                    DateTimeOffset.Now.AddDays(-2)));
+                    orderId: null, status: null, startDate: DateTimeOffset.Now.AddDays(-1),
+                    endDate: DateTimeOffset.Now.AddDays(-2)));
 
                 await AssertValidationError(new[] { "startDate" },
                     () => viewOnly.SendHttpRequest<Client.Models.InvoiceData[]>($"api/v1/stores/{user.StoreId}/invoices", new Dictionary<string, object>()
@@ -1108,7 +1108,7 @@ namespace BTCPayServer.Tests
 
                  //list Existing Status
                  var invoicesExistingStatus =
-                     await viewOnly.GetInvoices(user.StoreId, status:new []{newInvoice.Status});
+                     await viewOnly.GetInvoices(user.StoreId, status: new []{newInvoice.Status});
                  Assert.NotNull(invoicesExistingStatus);
                  Assert.Single(invoicesExistingStatus);
                  Assert.Equal(newInvoice.Id, invoicesExistingStatus.First().Id);
