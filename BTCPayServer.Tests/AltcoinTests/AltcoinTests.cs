@@ -23,7 +23,6 @@ using NBitpayClient;
 using NBXplorer.DerivationStrategy;
 using NBXplorer.Models;
 using Newtonsoft.Json.Linq;
-using OpenQA.Selenium;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -386,17 +385,17 @@ namespace BTCPayServer.Tests
             // BTC crash by 50%
             s.Server.PayTester.ChangeRate("BTC_USD", new Rating.BidAsk(5000.0m / 2.0m, 5100.0m / 2.0m));
             s.GoToInvoice(invoice.Id);
-            s.Driver.FindElement(By.Id("refundlink")).Click();
+            s.Driver.FindElement("#refundlink")).Click();
             if (multiCurrency)
             {
-                s.Driver.FindElement(By.Id("SelectedPaymentMethod")).SendKeys("BTC" + Keys.Enter);
-                s.Driver.FindElement(By.Id("ok")).Click();
+                s.Driver.FindElement("#SelectedPaymentMethod")).SendKeys("BTC" + Keys.Enter);
+                s.Driver.FindElement("#ok")).Click();
             }
             Assert.Contains("$5,500.00", s.Driver.PageSource); // Should propose reimburse in fiat
             Assert.Contains("1.10000000 ₿", s.Driver.PageSource); // Should propose reimburse in BTC at the rate of before
             Assert.Contains("2.20000000 ₿", s.Driver.PageSource); // Should propose reimburse in BTC at the current rate
             s.Driver.FindElement(By.Id(rateSelection)).Click();
-            s.Driver.FindElement(By.Id("ok")).Click();
+            s.Driver.FindElement("#ok")).Click();
             Assert.Contains("pull-payments", s.Driver.Url);
             if (rateSelection == "FiatText")
                 Assert.Contains("$5,500.00", s.Driver.PageSource);
@@ -407,7 +406,7 @@ namespace BTCPayServer.Tests
             s.GoToHome();
             s.GoToInvoices();
             s.GoToInvoice(invoice.Id);
-            s.Driver.FindElement(By.Id("refundlink")).Click();
+            s.Driver.FindElement("#refundlink")).Click();
             Assert.Contains("pull-payments", s.Driver.Url);
         }
 
@@ -421,15 +420,15 @@ namespace BTCPayServer.Tests
                 s.Server.ActivateLTC();
                 s.Server.ActivateLightning();
                 await s.StartAsync();
-                s.GoToRegister();
-                s.RegisterNewUser();
+                await s.GoToRegister();
+                await s.RegisterNewUser();
                 var store = s.CreateNewStore();
                 s.AddDerivationScheme("BTC");
 
                 //check that there is no dropdown since only one payment method is set
                 var invoiceId = s.CreateInvoice(store.storeName, 10, "USD", "a@g.com");
                 s.GoToInvoiceCheckout(invoiceId);
-                s.Driver.FindElement(By.ClassName("payment__currencies_noborder"));
+                Assert.NotNull(await s.Driver.QuerySelectorAsync(".payment__currencies_noborder"));
                 s.GoToHome();
                 s.GoToStore(store.storeId);
                 s.AddDerivationScheme("LTC");

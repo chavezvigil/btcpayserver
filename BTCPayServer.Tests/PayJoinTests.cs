@@ -248,10 +248,10 @@ namespace BTCPayServer.Tests
                     s.GoToHome();
                     s.GoToStore(receiver.storeId);
                     //payjoin is not enabled by default.
-                    Assert.False(s.Driver.FindElement(By.Id("PayJoinEnabled")).Selected);
-                    s.Driver.SetCheckbox(By.Id("PayJoinEnabled"), true);
-                    s.Driver.FindElement(By.Id("Save")).Click();
-                    Assert.True(s.Driver.FindElement(By.Id("PayJoinEnabled")).Selected);
+                    Assert.False(s.Driver.FindElement("#PayJoinEnabled")).Selected);
+                    s.Driver.SetCheckbox("#PayJoinEnabled"), true);
+                    s.Driver.FindElement("#Save")).Click();
+                    Assert.True(s.Driver.FindElement("#PayJoinEnabled")).Selected);
 
                     var sender = s.CreateNewStore();
                     var senderSeed = s.GenerateWallet("BTC", "", true, true, format);
@@ -266,12 +266,12 @@ namespace BTCPayServer.Tests
                     Assert.Contains($"{PayjoinClient.BIP21EndpointKey}=", bip21);
 
                     s.GoToWallet(senderWalletId, WalletsNavPages.Send);
-                    s.Driver.FindElement(By.Id("bip21parse")).Click();
+                    s.Driver.FindElement("#bip21parse")).Click();
                     s.Driver.SwitchTo().Alert().SendKeys(bip21);
                     s.Driver.SwitchTo().Alert().Accept();
-                    Assert.False(string.IsNullOrEmpty(s.Driver.FindElement(By.Id("PayJoinBIP21"))
+                    Assert.False(string.IsNullOrEmpty(s.Driver.FindElement("#PayJoinBIP21"))
                         .GetAttribute("value")));
-                    s.Driver.FindElement(By.Id("SendMenu")).Click();
+                    s.Driver.FindElement("#SendMenu")).Click();
                     var nbxSeedButton = s.Driver.FindElement(By.CssSelector("button[value=nbx-seed]"));
                     new WebDriverWait(s.Driver, SeleniumTester.ImplicitWait).Until(d=> nbxSeedButton.Enabled);
                     nbxSeedButton.Click();
@@ -302,14 +302,14 @@ namespace BTCPayServer.Tests
                     Assert.Contains($"{PayjoinClient.BIP21EndpointKey}", bip21);
 
                     s.GoToWallet(senderWalletId, WalletsNavPages.Send);
-                    s.Driver.FindElement(By.Id("bip21parse")).Click();
+                    s.Driver.FindElement("#bip21parse")).Click();
                     s.Driver.SwitchTo().Alert().SendKeys(bip21);
                     s.Driver.SwitchTo().Alert().Accept();
-                    Assert.False(string.IsNullOrEmpty(s.Driver.FindElement(By.Id("PayJoinBIP21"))
+                    Assert.False(string.IsNullOrEmpty(s.Driver.FindElement("#PayJoinBIP21"))
                         .GetAttribute("value")));
-                    s.Driver.FindElement(By.Id("FeeSatoshiPerByte")).Clear();
-                    s.Driver.FindElement(By.Id("FeeSatoshiPerByte")).SendKeys("2");
-                    s.Driver.FindElement(By.Id("SendMenu")).Click();
+                    s.Driver.FindElement("#FeeSatoshiPerByte")).Clear();
+                    s.Driver.FindElement("#FeeSatoshiPerByte")).SendKeys("2");
+                    s.Driver.FindElement("#SendMenu")).Click();
                     s.Driver.FindElement(By.CssSelector("button[value=nbx-seed]")).Click();
                     var txId = await s.Server.WaitForEvent<NewOnChainTransactionEvent>(() =>
                     {

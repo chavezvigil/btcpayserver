@@ -32,31 +32,31 @@ namespace BTCPayServer.Tests
                 var store = s.CreateNewStore();
                 s.AddDerivationScheme("BTC");
                 s.GoToStore(store.storeId, StoreNavPages.Checkout);
-                s.Driver.FindElement(By.Id("RequiresRefundEmail")).Click();
+                s.Driver.FindElement("#RequiresRefundEmail")).Click();
                 s.Driver.FindElement(By.Name("command")).Click();
 
                 var emailAlreadyThereInvoiceId = s.CreateInvoice(store.storeName, 100, "USD", "a@g.com");
                 s.GoToInvoiceCheckout(emailAlreadyThereInvoiceId);
-                s.Driver.AssertElementNotFound(By.Id("emailAddressFormInput"));
+                s.Driver.AssertElementNotFound("#emailAddressFormInput"));
                 s.GoToHome();
                 var invoiceId = s.CreateInvoice(store.storeName);
                 s.Driver.FindElement(By.ClassName("invoice-details-link")).Click();
                 s.Driver.AssertNoError();
                 s.Driver.Navigate().Back();
                 s.Driver.FindElement(By.ClassName("invoice-checkout-link")).Click();
-                Assert.NotEmpty(s.Driver.FindElements(By.Id("checkoutCtrl")));
+                Assert.NotEmpty(s.Driver.FindElements("#checkoutCtrl")));
 
-                Assert.True(s.Driver.FindElement(By.Id("emailAddressFormInput")).Displayed);
-                s.Driver.FindElement(By.Id("emailAddressFormInput")).SendKeys("xxx");
-                s.Driver.FindElement(By.Id("emailAddressForm")).FindElement(By.CssSelector("button.action-button"))
+                Assert.True(s.Driver.FindElement("#emailAddressFormInput")).Displayed);
+                s.Driver.FindElement("#emailAddressFormInput")).SendKeys("xxx");
+                s.Driver.FindElement("#emailAddressForm")).FindElement(By.CssSelector("button.action-button"))
                     .Click();
-                var formInput = s.Driver.FindElement(By.Id("emailAddressFormInput"));
+                var formInput = s.Driver.FindElement("#emailAddressFormInput"));
 
                 Assert.True(formInput.Displayed);
                 Assert.Contains("form-input-invalid", formInput.GetAttribute("class"));
-                formInput = s.Driver.FindElement(By.Id("emailAddressFormInput"));
+                formInput = s.Driver.FindElement("#emailAddressFormInput"));
                 formInput.SendKeys("@g.com");
-                var actionButton = s.Driver.FindElement(By.Id("emailAddressForm")).FindElement(By.CssSelector("button.action-button"));
+                var actionButton = s.Driver.FindElement("#emailAddressForm")).FindElement(By.CssSelector("button.action-button"));
                 actionButton.Click();
                 try // Sometimes the click only take the focus, without actually really clicking on it...
                 {
@@ -64,9 +64,9 @@ namespace BTCPayServer.Tests
                 }
                 catch { }
 
-                s.Driver.AssertElementNotFound(By.Id("emailAddressFormInput"));
+                s.Driver.AssertElementNotFound("#emailAddressFormInput"));
                 s.Driver.Navigate().Refresh();
-                s.Driver.AssertElementNotFound(By.Id("emailAddressFormInput"));
+                s.Driver.AssertElementNotFound("#emailAddressFormInput"));
             }
         }
 
@@ -83,18 +83,18 @@ namespace BTCPayServer.Tests
 
                 var invoiceId = s.CreateInvoice(store.storeName);
                 s.GoToInvoiceCheckout(invoiceId);
-                Assert.True(s.Driver.FindElement(By.Id("DefaultLang")).FindElements(By.TagName("option")).Count > 1);
-                var payWithTextEnglish = s.Driver.FindElement(By.Id("pay-with-text")).Text;
+                Assert.True(s.Driver.FindElement("#DefaultLang")).FindElements(By.TagName("option")).Count > 1);
+                var payWithTextEnglish = s.Driver.FindElement("#pay-with-text")).Text;
 
-                var prettyDropdown = s.Driver.FindElement(By.Id("prettydropdown-DefaultLang"));
+                var prettyDropdown = s.Driver.FindElement("#prettydropdown-DefaultLang"));
                 prettyDropdown.Click();
                 await Task.Delay(200);
                 prettyDropdown.FindElement(By.CssSelector("[data-value=\"da-DK\"]")).Click();
                 await Task.Delay(1000);
-                Assert.NotEqual(payWithTextEnglish, s.Driver.FindElement(By.Id("pay-with-text")).Text);
+                Assert.NotEqual(payWithTextEnglish, s.Driver.FindElement("#pay-with-text")).Text);
                 s.Driver.Navigate().GoToUrl(s.Driver.Url + "?lang=da-DK");
 
-                Assert.NotEqual(payWithTextEnglish, s.Driver.FindElement(By.Id("pay-with-text")).Text);
+                Assert.NotEqual(payWithTextEnglish, s.Driver.FindElement("#pay-with-text")).Text);
 
                 s.Driver.Quit();
             }
@@ -113,7 +113,7 @@ namespace BTCPayServer.Tests
                 var store = s.CreateNewStore();
                 s.AddLightningNode();
                 s.GoToStore(store.storeId, StoreNavPages.Checkout);
-                s.Driver.SetCheckbox(By.Id("LightningAmountInSatoshi"), true);
+                s.Driver.SetCheckbox("#LightningAmountInSatoshi"), true);
                 var command = s.Driver.FindElement(By.Name("command"));
 
                 command.Click();
@@ -148,7 +148,7 @@ namespace BTCPayServer.Tests
                         .GetPaymentMethodDetails().GetPaymentDestination(), Network.RegTest),
                     new Money(0.001m, MoneyUnit.BTC));
 
-                IWebElement closebutton = null;
+                IElementHandle closebutton = null;
                 TestUtils.Eventually(() =>
                 {
                     var frameElement = s.Driver.FindElement(By.Name("btcpay"));

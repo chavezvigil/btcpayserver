@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,8 +7,7 @@ using BTCPayServer.Tests.Logging;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Support.UI;
+using PlaywrightSharp;
 using Xunit;
 
 namespace BTCPayServer.Tests
@@ -17,23 +17,24 @@ namespace BTCPayServer.Tests
         private static readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() };
         public static string ToJson(this object o) => JsonConvert.SerializeObject(o, Formatting.None, JsonSettings);
 
-        public static void LogIn(this SeleniumTester s, string email)
+        public static async Task LogIn(this SeleniumTester s, string email)
         {
-            s.Driver.FindElement(By.Id("Email")).SendKeys(email);
-            s.Driver.FindElement(By.Id("Password")).SendKeys("123456");
-            s.Driver.FindElement(By.Id("LoginButton")).Click();
-            s.Driver.AssertNoError();
+            await s.Driver.TypeAsync("#Email", email);
+            await s.Driver.TypeAsync("#Password", "123456");
+            await s.Driver.ClickAsync("#LoginButton");
+            await s.AssertNoError();
         }
 
-        public static void AssertNoError(this IWebDriver driver)
+        public static async Task AssertNoError(this SeleniumTester tester)
         {
             try
             {
-                Assert.NotEmpty(driver.FindElements(By.ClassName("navbar-brand")));
-                if (driver.PageSource.Contains("alert-danger"))
+                Assert.NotNull(await tester.Driver.QuerySelectorAsync(".navbar-brand"));
+                var dangerAlerts = await tester.Driver.QuerySelectorAllAsync(".alert-danger");
+                if (dangerAlerts.Any())
                 {
-                    foreach (var dangerAlert in driver.FindElements(By.ClassName("alert-danger")))
-                        Assert.False(dangerAlert.Displayed, "No alert should be displayed");
+                    foreach (var dangerAlert in dangerAlerts)
+                        Assert.False(await dangerAlert.IsVisibleAsync(), "No alert should be displayed");
                 }
             }
             catch
@@ -44,7 +45,8 @@ namespace BTCPayServer.Tests
                 {
                     try
                     {
-                        var logs = driver.Manage().Logs.GetLog(logKind);
+                        tester.Browser.Contexts.First().
+                        var logs = tester.Manage().Logs.GetLog(logKind);
                         builder.AppendLine($"Selenium [{logKind}]:");
                         foreach (var entry in logs)
                         {
@@ -61,7 +63,7 @@ namespace BTCPayServer.Tests
                 Logs.Tester.LogInformation(builder.ToString());
                 builder = new StringBuilder();
                 builder.AppendLine("Selenium [Sources]:");
-                builder.AppendLine(driver.PageSource);
+                builder.AppendLine(tester.Browser.);
                 builder.AppendLine("---------");
                 Logs.Tester.LogInformation(builder.ToString());
                 throw;
@@ -113,7 +115,7 @@ namespace BTCPayServer.Tests
             wait.Until(d=>((IJavaScriptExecutor)d).ExecuteScript("return typeof(jQuery) === 'undefined' || jQuery.active === 0").Equals(true));
         }
 
-        public static IWebElement WaitForElement(this IWebDriver driver, By selector)
+        public static IElementHandle WaitForElement(this IWebDriver driver, By selector)
         {
             var wait = new WebDriverWait(driver, SeleniumTester.ImplicitWait);
             wait.UntilJsIsReady();

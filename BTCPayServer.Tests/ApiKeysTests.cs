@@ -48,7 +48,7 @@ namespace BTCPayServer.Tests
                 s.GoToLogin();
                 s.Login(user.RegisterDetails.Email, user.RegisterDetails.Password);
                 s.GoToProfile(ManageNavPages.APIKeys);
-                s.Driver.FindElement(By.Id("AddApiKey")).Click();
+                s.Driver.FindElement("#AddApiKey")).Click();
 
                 //not an admin, so this permission should not show
                 Assert.DoesNotContain("btcpay.server.canmodifyserversettings", s.Driver.PageSource);
@@ -57,49 +57,49 @@ namespace BTCPayServer.Tests
                 s.GoToLogin();
                 s.Login(user.RegisterDetails.Email, user.RegisterDetails.Password);
                 s.GoToProfile(ManageNavPages.APIKeys);
-                s.Driver.FindElement(By.Id("AddApiKey")).Click();
+                s.Driver.FindElement("#AddApiKey")).Click();
                 Assert.Contains("btcpay.server.canmodifyserversettings", s.Driver.PageSource);
 
                 //server management should show now
-                s.Driver.SetCheckbox(By.Id("btcpay.server.canmodifyserversettings"), true);
-                s.Driver.SetCheckbox(By.Id("btcpay.store.canmodifystoresettings"), true);
-                s.Driver.SetCheckbox(By.Id("btcpay.user.canviewprofile"), true);
-                s.Driver.FindElement(By.Id("Generate")).Click();
+                s.Driver.SetCheckbox("#btcpay.server.canmodifyserversettings"), true);
+                s.Driver.SetCheckbox("#btcpay.store.canmodifystoresettings"), true);
+                s.Driver.SetCheckbox("#btcpay.user.canviewprofile"), true);
+                s.Driver.FindElement("#Generate")).Click();
                 var superApiKey = s.FindAlertMessage().FindElement(By.TagName("code")).Text;
 
                 //this api key has access to everything
                 await TestApiAgainstAccessToken(superApiKey, tester, user, Policies.CanModifyServerSettings, Policies.CanModifyStoreSettings, Policies.CanViewProfile);
 
 
-                s.Driver.FindElement(By.Id("AddApiKey")).Click();
-                s.Driver.SetCheckbox(By.Id("btcpay.server.canmodifyserversettings"), true);
-                s.Driver.FindElement(By.Id("Generate")).Click();
+                s.Driver.FindElement("#AddApiKey")).Click();
+                s.Driver.SetCheckbox("#btcpay.server.canmodifyserversettings"), true);
+                s.Driver.FindElement("#Generate")).Click();
                 var serverOnlyApiKey = s.FindAlertMessage().FindElement(By.TagName("code")).Text;
                 await TestApiAgainstAccessToken(serverOnlyApiKey, tester, user,
                     Policies.CanModifyServerSettings);
 
 
-                s.Driver.FindElement(By.Id("AddApiKey")).Click();
-                s.Driver.SetCheckbox(By.Id("btcpay.store.canmodifystoresettings"), true);
-                s.Driver.FindElement(By.Id("Generate")).Click();
+                s.Driver.FindElement("#AddApiKey")).Click();
+                s.Driver.SetCheckbox("#btcpay.store.canmodifystoresettings"), true);
+                s.Driver.FindElement("#Generate")).Click();
                 var allStoreOnlyApiKey = s.FindAlertMessage().FindElement(By.TagName("code")).Text;
                 await TestApiAgainstAccessToken(allStoreOnlyApiKey, tester, user,
                     Policies.CanModifyStoreSettings);
 
-                s.Driver.FindElement(By.Id("AddApiKey")).Click();
+                s.Driver.FindElement("#AddApiKey")).Click();
                 s.Driver.FindElement(By.CssSelector("button[value='btcpay.store.canmodifystoresettings:change-store-mode']")).Click();
                 //there should be a store already by default in the dropdown
                 var dropdown = s.Driver.FindElement(By.Name("PermissionValues[4].SpecificStores[0]"));
                 var option = dropdown.FindElement(By.TagName("option"));
                 var storeId = option.GetAttribute("value");
                 option.Click();
-                s.Driver.FindElement(By.Id("Generate")).Click();
+                s.Driver.FindElement("#Generate")).Click();
                 var selectiveStoreApiKey = s.FindAlertMessage().FindElement(By.TagName("code")).Text;
                 await TestApiAgainstAccessToken(selectiveStoreApiKey, tester, user,
                     Permission.Create(Policies.CanModifyStoreSettings, storeId).ToString());
 
-                s.Driver.FindElement(By.Id("AddApiKey")).Click();
-                s.Driver.FindElement(By.Id("Generate")).Click();
+                s.Driver.FindElement("#AddApiKey")).Click();
+                s.Driver.FindElement("#Generate")).Click();
                 var noPermissionsApiKey = s.FindAlertMessage().FindElement(By.TagName("code")).Text;
                 await TestApiAgainstAccessToken(noPermissionsApiKey, tester, user);
 
@@ -124,12 +124,12 @@ namespace BTCPayServer.Tests
                     new[] { Policies.CanModifyStoreSettings, Policies.CanModifyServerSettings }, applicationDetails: (appidentifier, new Uri(callbackUrl))).ToString();
                 s.Driver.Navigate().GoToUrl(authUrl);
                 Assert.Contains(appidentifier, s.Driver.PageSource);
-                Assert.Equal("hidden", s.Driver.FindElement(By.Id("btcpay.store.canmodifystoresettings")).GetAttribute("type").ToLowerInvariant());
-                Assert.Equal("true", s.Driver.FindElement(By.Id("btcpay.store.canmodifystoresettings")).GetAttribute("value").ToLowerInvariant());
-                Assert.Equal("hidden", s.Driver.FindElement(By.Id("btcpay.server.canmodifyserversettings")).GetAttribute("type").ToLowerInvariant());
-                Assert.Equal("true", s.Driver.FindElement(By.Id("btcpay.server.canmodifyserversettings")).GetAttribute("value").ToLowerInvariant());
+                Assert.Equal("hidden", s.Driver.FindElement("#btcpay.store.canmodifystoresettings")).GetAttribute("type").ToLowerInvariant());
+                Assert.Equal("true", s.Driver.FindElement("#btcpay.store.canmodifystoresettings")).GetAttribute("value").ToLowerInvariant());
+                Assert.Equal("hidden", s.Driver.FindElement("#btcpay.server.canmodifyserversettings")).GetAttribute("type").ToLowerInvariant());
+                Assert.Equal("true", s.Driver.FindElement("#btcpay.server.canmodifyserversettings")).GetAttribute("value").ToLowerInvariant());
                 Assert.DoesNotContain("change-store-mode", s.Driver.PageSource);
-                s.Driver.FindElement(By.Id("consent-yes")).Click();
+                s.Driver.FindElement("#consent-yes")).Click();
                 Assert.Equal(callbackUrl, s.Driver.Url);
 
                 var apiKeyRepo = s.Server.PayTester.GetService<APIKeyRepository>();
@@ -144,14 +144,14 @@ namespace BTCPayServer.Tests
                 s.Driver.Navigate().GoToUrl(authUrl);
                 Assert.DoesNotContain("kukksappname", s.Driver.PageSource);
 
-                Assert.Equal("checkbox", s.Driver.FindElement(By.Id("btcpay.store.canmodifystoresettings")).GetAttribute("type").ToLowerInvariant());
-                Assert.Equal("true", s.Driver.FindElement(By.Id("btcpay.store.canmodifystoresettings")).GetAttribute("value").ToLowerInvariant());
-                Assert.Equal("checkbox", s.Driver.FindElement(By.Id("btcpay.server.canmodifyserversettings")).GetAttribute("type").ToLowerInvariant());
-                Assert.Equal("true", s.Driver.FindElement(By.Id("btcpay.server.canmodifyserversettings")).GetAttribute("value").ToLowerInvariant());
+                Assert.Equal("checkbox", s.Driver.FindElement("#btcpay.store.canmodifystoresettings")).GetAttribute("type").ToLowerInvariant());
+                Assert.Equal("true", s.Driver.FindElement("#btcpay.store.canmodifystoresettings")).GetAttribute("value").ToLowerInvariant());
+                Assert.Equal("checkbox", s.Driver.FindElement("#btcpay.server.canmodifyserversettings")).GetAttribute("type").ToLowerInvariant());
+                Assert.Equal("true", s.Driver.FindElement("#btcpay.server.canmodifyserversettings")).GetAttribute("value").ToLowerInvariant());
 
-                s.Driver.SetCheckbox(By.Id("btcpay.server.canmodifyserversettings"), false);
+                s.Driver.SetCheckbox("#btcpay.server.canmodifyserversettings"), false);
                 Assert.Contains("change-store-mode", s.Driver.PageSource);
-                s.Driver.FindElement(By.Id("consent-yes")).Click();
+                s.Driver.FindElement("#consent-yes")).Click();
                 Assert.Equal(callbackUrl, s.Driver.Url);
 
                 accessToken = GetAccessTokenFromCallbackResult(s.Driver);
@@ -164,7 +164,7 @@ namespace BTCPayServer.Tests
 
                 //if it's the same, go to the confirm page
                 s.Driver.Navigate().GoToUrl(authUrl);
-                s.Driver.FindElement(By.Id("continue")).Click();
+                s.Driver.FindElement("#continue")).Click();
                 Assert.Equal(callbackUrl, s.Driver.Url);
                 
                 //same app but different redirect = nono
@@ -180,14 +180,14 @@ namespace BTCPayServer.Tests
                 s.GoToLogin();
                 s.Login(user.RegisterDetails.Email, user.RegisterDetails.Password);
                 s.GoToProfile(ManageNavPages.APIKeys);
-                s.Driver.FindElement(By.Id("AddApiKey")).Click();
+                s.Driver.FindElement("#AddApiKey")).Click();
                 int checkedPermissionCount = 0;
                 foreach (var checkbox in s.Driver.FindElements(By.ClassName("form-check-input")))
                 {
                     checkedPermissionCount++;
                     checkbox.Click();
                 }
-                s.Driver.FindElement(By.Id("Generate")).Click();
+                s.Driver.FindElement("#Generate")).Click();
                 var allAPIKey = s.FindAlertMessage().FindElement(By.TagName("code")).Text;
                 var apikeydata = await TestApiAgainstAccessToken<ApiKeyData>(allAPIKey, $"api/v1/api-keys/current", tester.PayTester.HttpClient);
                 Assert.Equal(checkedPermissionCount, apikeydata.Permissions.Length);
