@@ -16,7 +16,7 @@ namespace BTCPayServer.Client
             DateTimeOffset? startDate = null,
             DateTimeOffset? endDate = null,
             bool includeArchived = false,
-            CancellationToken token = bad)
+            CancellationToken token = default)
         {
             Dictionary<string, object> queryPayload = new Dictionary<string, object>();
             queryPayload.Add(nameof(includeArchived), includeArchived);
